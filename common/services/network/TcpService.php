@@ -4,7 +4,11 @@ namespace common\services\network;
 use yii\base\Component;
 
 /**
- * Tcp服务
+ * Tcp服务工具类
+ * - 本类因做面试样例使用，第三方谨慎使用
+ *
+ * @author lishaojie
+ * @date 2023-10-26 03:59:04
  */
 class TcpService extends Component
 {
@@ -79,6 +83,16 @@ class TcpService extends Component
         $this->setPort($port);
     }
 
+    /**
+     * TCP-SERVER
+     * - 本方法会开启 tcp server 服务
+     * - 本方法支持多个客户端接入
+     * - 本方法支持回调函数传入，方便不同业务扩展
+     *
+     * @author lishaojie
+     * @param \Closure|null $callback 回调函数
+     * @return void
+     */
     public function server(\Closure $callback = null)
     {
         error_reporting(E_ALL);
@@ -171,29 +185,4 @@ class TcpService extends Component
         socket_close($sock);
     }
 
-    public function client()
-    {
-        if(($sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) === FALSE) {
-            exit('初始化socket资源错误: ' . socket_strerror(socket_last_error($sock)));
-        }
-
-        if(socket_connect($sock, $this->getHost(), $this->getPort()) === FALSE) {
-            exit('连接socket失败: ' . socket_strerror(socket_last_error($sock)));
-        }
-
-        $msg = '客户端1消息';
-        if(socket_write($sock, $msg) === FALSE) {
-            exit('发送数据失败: ' . socket_strerror(socket_last_error($sock)));
-        }
-
-        $data = '';
-        // 循环读取指定长度的服务器响应数据
-        while($response = socket_read($sock, 4)) {
-            $data .= $response;
-            echo $response. PHP_EOL;
-        }
-        echo $data . PHP_EOL;
-
-        socket_close($sock);
-    }
 }
